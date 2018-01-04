@@ -17,7 +17,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -49,8 +52,9 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject object = jsonObject.getJSONObject("bpi");
                             JSONObject subObject = object.getJSONObject("USD");
                             double rate = subObject.getDouble("rate_float");
-                            String formated_rate = String.format("%.2f", rate);
-                            mTextView.setText(formated_rate);
+                            Locale us = new Locale("en", "US");
+                            NumberFormat formatter = NumberFormat.getCurrencyInstance(us);
+                            mTextView.setText(formatter.format(rate));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -58,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                     }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                mTextView.setText("That didn't work!");
+                mTextView.setText("Please check internet your connection!");
             }
         });
 // Add the request to the RequestQueue.
