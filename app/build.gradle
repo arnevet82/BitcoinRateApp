@@ -29,5 +29,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile "com.android.support:support-v4:26.1.0"
 
 }
