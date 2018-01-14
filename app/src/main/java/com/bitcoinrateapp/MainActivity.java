@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.SystemClock;
@@ -15,12 +16,11 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,21 +32,27 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import static java.lang.Math.abs;
+
 
 public class MainActivity extends AppCompatActivity {
 
     Coin bitcoin, ethereum, ripple, litecoin, bitcoinCash;
+    TextView text1, text2, text3, text4, text5;
     TextView mTextView,eTextView,rTextView, lTextView, bTextView;
     ImageView bitcoinArrow, etherArrow, rippleArrow, litecoinArrow, bcashArrow;
     public static Coin [] coins;
     public static ArrayList<Double>closingRates;
     Button refresh;
+    TextView bitPct, ethPct, ripPct, litePct, bcPct;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -102,14 +108,13 @@ public class MainActivity extends AppCompatActivity {
                                 if(coin.closingRate != 0){
                                     if(coin.newRate < coin.closingRate){
                                         coin.state = "down";
+                                        coin.pctChange = ((coin.newRate/coin.closingRate)-1)*100;
                                     }else if (coin.newRate > coin.closingRate) {
                                         coin.state = "up";
+                                        coin.pctChange = abs(((coin.closingRate/coin.newRate)-1)*100);
                                     }else{
-
                                     }
-
                                 }
-
                             }
                             changeArrowsByState();
 
@@ -120,9 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                for(Coin coin: coins){
-                    coin.textView.setText("Check internet connection");
-                }
+                Toast.makeText(getApplicationContext(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
             }
         });
 // Add the request to the RequestQueue.
@@ -130,12 +133,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void changeArrowsByState(){
+        NumberFormat formatter = new DecimalFormat("#0.00");
         for(Coin coin: coins){
             if(coin.state != null){
                 if(coin.state.equals("up")){
-                    coin.arrow.setImageResource(R.drawable.up_arrow);
+                    coin.arrow.setImageResource(R.drawable.arrow_up);
+                    coin.pctTextView.setText("+" + String.valueOf(formatter.format(coin.pctChange))+"%");
+                    coin.pctTextView.setTextColor(Color.GREEN);
                 }else if (coin.state.equals("down")) {
-                    coin.arrow.setImageResource(R.drawable.down_arrow);
+                    coin.arrow.setImageResource(R.drawable.arrow_down);
+                    coin.pctTextView.setText(String.valueOf(formatter.format(coin.pctChange))+"%");
+                    coin.pctTextView.setTextColor(Color.RED);
                 }else{
                     Log.e("no state", "no arrows");
                 }
@@ -192,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onReceive( Context context, Intent _ ) {
                 getRates();
                 for(Coin coin: coins){
-                    if(coin.closingRate*coin.changePercent > coin.newRate || coin.closingRate < coin.newRate*coin.changePercent){
+                    if(coin.closingRate*coin.changePercentAlert > coin.newRate || coin.closingRate < coin.newRate*coin.changePercentAlert){
                         sendNotification("Change in " + coin.name + " rates!!!");
                     }
                 }
@@ -249,13 +257,34 @@ public class MainActivity extends AppCompatActivity {
 
     public void init(){
 
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "Montserrat-Light.ttf");
+        TextView trending = (TextView)findViewById(R.id.trending);
+        trending.setTypeface(typeface);
+
         refresh = (Button)findViewById(R.id.refresh);
 
+        text1 = (TextView)findViewById(R.id.bit_rate);
+        text1.setTypeface(typeface);
+        text2 = (TextView)findViewById(R.id.eth_rate);
+        text2.setTypeface(typeface);
+        text3 = (TextView)findViewById(R.id.rip_rate);
+        text3.setTypeface(typeface);
+        text4 = (TextView)findViewById(R.id.lite_rate);
+        text4.setTypeface(typeface);
+        text5 = (TextView)findViewById(R.id.bc_rate);
+        text5.setTypeface(typeface);
+
+
         mTextView = (TextView) findViewById(R.id.rate);
+        mTextView.setTypeface(typeface);
         eTextView = (TextView) findViewById(R.id.e_rate);
+        eTextView.setTypeface(typeface);
         rTextView = (TextView) findViewById(R.id.r_rate);
+        rTextView.setTypeface(typeface);
         lTextView = (TextView) findViewById(R.id.l_rate);
+        lTextView.setTypeface(typeface);
         bTextView = (TextView) findViewById(R.id.bcach_rate);
+        bTextView.setTypeface(typeface);
 
         bitcoinArrow = (ImageView)findViewById(R.id.bitcoin_arrow);
         etherArrow = (ImageView)findViewById(R.id.ether_arrow);
@@ -263,11 +292,25 @@ public class MainActivity extends AppCompatActivity {
         litecoinArrow = (ImageView)findViewById(R.id.lite_arrow);
         bcashArrow = (ImageView)findViewById(R.id.bcash_arrow);
 
-        bitcoin = new Coin(mTextView, 0, 0, bitcoinArrow,"Bitcoin", 0.995);
-        ethereum = new Coin(eTextView, 0, 0,etherArrow,"Ethereum", 0.995);
-        ripple = new Coin(rTextView, 0, 0,rippleArrow,"Ripple", 0.99);
-        litecoin = new Coin(lTextView, 0, 0,litecoinArrow,"Litecoin", 0.98);
-        bitcoinCash = new Coin(bTextView, 0, 0,bcashArrow,"Bitcoin Cash", 0.98);
+        bitPct = (TextView)findViewById(R.id.bit_pct);
+        bitPct.setTypeface(typeface);
+        ethPct = (TextView)findViewById(R.id.eth_pct);
+        ethPct.setTypeface(typeface);
+        ripPct = (TextView)findViewById(R.id.rip_pct);
+        ripPct.setTypeface(typeface);
+        litePct = (TextView)findViewById(R.id.lite_pct);
+        litePct.setTypeface(typeface);
+        bcPct = (TextView)findViewById(R.id.bc_pct);
+        bcPct.setTypeface(typeface);
+
+        bitcoin = new Coin(mTextView, 0, 0, bitcoinArrow,"Bitcoin", 0.995,bitPct);
+        ethereum = new Coin(eTextView, 0, 0,etherArrow,"Ethereum", 0.995, ethPct);
+        ripple = new Coin(rTextView, 0, 0,rippleArrow,"Ripple", 0.99, ripPct);
+        litecoin = new Coin(lTextView, 0, 0,litecoinArrow,"Litecoin", 0.98, litePct);
+        bitcoinCash = new Coin(bTextView, 0, 0,bcashArrow,"Bitcoin Cash", 0.98, bcPct);
+
+
+
 
         coins = new Coin[]{bitcoin, ethereum, ripple, litecoin, bitcoinCash};
 
