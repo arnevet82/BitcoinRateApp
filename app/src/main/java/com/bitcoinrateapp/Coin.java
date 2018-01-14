@@ -15,12 +15,14 @@ public class Coin {
     ImageView arrow;
     String name;
     String state;
+    double changePercent;
 
-    public Coin(TextView textView, double oldRate, double newRate, ImageView arrow, String name) {
+    public Coin(TextView textView, double oldRate, double newRate, ImageView arrow, String name, double changePercent) {
         this.textView = textView;
         this.oldRate = oldRate;
         this.newRate = newRate;
         this.arrow = arrow;
         this.name = name;
+        this.changePercent = changePercent;
     }
 }

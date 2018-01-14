@@ -79,16 +79,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void getRates(){
 
-        // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="https://api.coinmarketcap.com/v1/ticker/?limit=10";
 
-// Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
                         Locale us = new Locale("en", "US");
                         NumberFormat formatter = NumberFormat.getCurrencyInstance(us);
                         int []indices = {0, 1, 2, 5, 3};
@@ -102,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
                                 Coin coin = coins[i];
                                 coin.newRate = bitRate;
                                 coin.textView.setText(formatter.format(bitRate));
-//                                coin.textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,23);
                                 if(coin.closingRate != 0){
                                     if(coin.newRate < coin.closingRate){
                                         coin.state = "down";
@@ -126,8 +122,6 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 for(Coin coin: coins){
                     coin.textView.setText("Check internet connection");
-//                    coin.textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,21);
-//                    coin.textView.setTypeface(Typeface.DEFAULT);
                 }
             }
         });
@@ -153,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        // put your code here...
         getRates();
     }
 
@@ -185,8 +178,6 @@ public class MainActivity extends AppCompatActivity {
                 .setAutoCancel(true)
                 .setContentIntent(intent);
 
-
-
         Notification notificationn = notification.getNotification();
         assert notificationManager != null;
         notificationManager.notify(1, notificationn);
@@ -201,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onReceive( Context context, Intent _ ) {
                 getRates();
                 for(Coin coin: coins){
-                    if(coin.closingRate*0.985 > coin.newRate || coin.closingRate < coin.newRate*0.985){
+                    if(coin.closingRate*coin.changePercent > coin.newRate || coin.closingRate < coin.newRate*coin.changePercent){
                         sendNotification("Change in " + coin.name + " rates!!!");
                     }
                 }
@@ -219,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
                 SystemClock.elapsedRealtime(),
                 hour*8,
                 pintent);
-//        this.unregisterReceiver(receiver);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -232,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
 
                     coin.closingRate = coin.newRate;
                 }
-//                sendNotification("updated closing rates");
                 saveRates();
                 getRates();
 
@@ -255,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 (AlarmManager.INTERVAL_DAY*2), pintent);
-//        this.unregisterReceiver(receiver);
     }
 
 
@@ -275,11 +263,11 @@ public class MainActivity extends AppCompatActivity {
         litecoinArrow = (ImageView)findViewById(R.id.lite_arrow);
         bcashArrow = (ImageView)findViewById(R.id.bcash_arrow);
 
-        bitcoin = new Coin(mTextView, 0, 0, bitcoinArrow,"Bitcoin");
-        ethereum = new Coin(eTextView, 0, 0,etherArrow,"Ethereum");
-        ripple = new Coin(rTextView, 0, 0,rippleArrow,"Ripple");
-        litecoin = new Coin(lTextView, 0, 0,litecoinArrow,"Litecoin");
-        bitcoinCash = new Coin(bTextView, 0, 0,bcashArrow,"Bitcoin Cash");
+        bitcoin = new Coin(mTextView, 0, 0, bitcoinArrow,"Bitcoin", 0.995);
+        ethereum = new Coin(eTextView, 0, 0,etherArrow,"Ethereum", 0.995);
+        ripple = new Coin(rTextView, 0, 0,rippleArrow,"Ripple", 0.99);
+        litecoin = new Coin(lTextView, 0, 0,litecoinArrow,"Litecoin", 0.98);
+        bitcoinCash = new Coin(bTextView, 0, 0,bcashArrow,"Bitcoin Cash", 0.98);
 
         coins = new Coin[]{bitcoin, ethereum, ripple, litecoin, bitcoinCash};
 
