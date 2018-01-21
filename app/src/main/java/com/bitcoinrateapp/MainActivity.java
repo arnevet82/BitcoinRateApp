@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         tinyDB.putListDouble("blah", closingRates);
     }
 
-    public void sendNotification(String title){
+    public void sendNotification(String title, int id){
 
         Intent notificationIntent = new Intent(MainActivity.this, MainActivity.class);
         // set intent so it does not start a new activity
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
         Notification notificationn = notification.getNotification();
         assert notificationManager != null;
-        notificationManager.notify(1, notificationn);
+        notificationManager.notify(id, notificationn);
 
     }
 
@@ -199,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override public void onReceive( Context context, Intent _ ) {
                 getRates();
-                for(Coin coin: coins){
-                    if(coin.closingRate*coin.changePercentAlert > coin.newRate || coin.closingRate < coin.newRate*coin.changePercentAlert){
-                        sendNotification("Change in " + coin.name + " rates!!!");
+                for(int i = 0; i < coins.length; i++){
+                    if(coins[i].closingRate*coins[i].changePercentAlert > coins[i].newRate || coins[i].closingRate < coins[i].newRate*coins[i].changePercentAlert){
+                        sendNotification("Change in " + coins[i].name + " rates!!!", i+555);
                     }
                 }
 
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         long hour = 60 * 60 * 1000;
         manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime(),
-                hour*8,
+                hour*1,
                 pintent);
     }
 
@@ -303,11 +303,11 @@ public class MainActivity extends AppCompatActivity {
         bcPct = (TextView)findViewById(R.id.bc_pct);
         bcPct.setTypeface(typeface);
 
-        bitcoin = new Coin(mTextView, 0, 0, bitcoinArrow,"Bitcoin", 0.995,bitPct);
-        ethereum = new Coin(eTextView, 0, 0,etherArrow,"Ethereum", 0.995, ethPct);
-        ripple = new Coin(rTextView, 0, 0,rippleArrow,"Ripple", 0.99, ripPct);
-        litecoin = new Coin(lTextView, 0, 0,litecoinArrow,"Litecoin", 0.98, litePct);
-        bitcoinCash = new Coin(bTextView, 0, 0,bcashArrow,"Bitcoin Cash", 0.98, bcPct);
+        bitcoin = new Coin(mTextView, 0, 0, bitcoinArrow,"Bitcoin", 0.99,bitPct);
+        ethereum = new Coin(eTextView, 0, 0,etherArrow,"Ethereum", 0.98, ethPct);
+        ripple = new Coin(rTextView, 0, 0,rippleArrow,"Ripple", 0.95, ripPct);
+        litecoin = new Coin(lTextView, 0, 0,litecoinArrow,"Litecoin", 0.95, litePct);
+        bitcoinCash = new Coin(bTextView, 0, 0,bcashArrow,"Bitcoin Cash", 0.96, bcPct);
 
 
 
